@@ -16,6 +16,15 @@ async function save_screenshot(elem, filename, isPage){
     await s3.putObject(params).promise();
 }
 
+async function save_page(page, filename){
+    var s3 = new AWS.S3();
+    var key_name = PROJECT_PATH + 'output/' + filename;
+    let dumpHTML = await page.content();
+    const params = { Bucket: BUCKET_NAME, Key: key_name, Body: dumpHTML };
+    await s3.putObject(params).promise();
+    
+}
+
 async function checkPerson (credPerson) {
     var namePerson = credPerson.name;
     var loginPerson = credPerson.login;
@@ -23,6 +32,7 @@ async function checkPerson (credPerson) {
     
     var res;
     let browser;
+
     try {
         browser = await puppeteer.launch({
           args: chromium.args,
@@ -34,10 +44,13 @@ async function checkPerson (credPerson) {
         const page = await browser.newPage();
         await page.goto("https://cst-ssc.apps.cic.gc.ca/en/login");
         await save_screenshot(page, 'step1'+namePerson+'.png', true);
+        await save_page(page, 'step1' + namePerson + '.html');
+        
         
         const signInButton = await page.waitForXPath("//button[text()[contains(., 'Sign into your tracker account')]]");
         await signInButton.click( {waitUntil: 'domcontentloaded'});
         await save_screenshot(page, 'step2'+ namePerson+'.png', true);
+        await save_page(page, 'step2' + namePerson + '.html');
         
         const uci = await page.waitForSelector('#uci');
         await uci.type(loginPerson);
@@ -48,6 +61,7 @@ async function checkPerson (credPerson) {
         
         const lastUpdateDateEl = await page.waitForXPath("//dd[contains(@class,'date-text')]");
         await save_screenshot(page, 'step3'+ namePerson+'.png', true);
+        await save_page(page, 'step3' + namePerson + '.html');
         
         let lastUpdateDateVal = await (await lastUpdateDateEl.getProperty('textContent')).jsonValue();
         const lastUpdateDate = lastUpdateDateVal.trim();
