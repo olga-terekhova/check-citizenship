@@ -6,7 +6,7 @@ const PROJECT_PATH = 'projects/citizenship/'; // path in the S3 bucket to the pr
 
 async function save_screenshot(elem, filename, isPage){
     var s3 = new AWS.S3();
-    var key_name = PROJECT_PATH + filename;
+    var key_name = PROJECT_PATH + 'output/' + filename;
     let screenshot;
     if (isPage == true) {
         screenshot = await elem.screenshot({fullPage: true});
@@ -107,7 +107,7 @@ async function checkPeople () {
     let response='';
     try {
         const file = await s3
-         .getObject({ Bucket: BUCKET_NAME, Key: PROJECT_PATH + 'cred.config' })
+         .getObject({ Bucket: BUCKET_NAME, Key: PROJECT_PATH + 'config/cred.config' })
          .promise();
         contentFile = file.Body.toString();
         let credFile = JSON.parse(contentFile);
