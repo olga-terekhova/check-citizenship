@@ -108,8 +108,8 @@ async function checkPerson (credPerson) {
         res = JSON.stringify(result_person);
         
         let res_area = await page.$x("//section[@class='application-history-container']"); 
-        await save_screenshot(res_area[0], 'timeline'+namePerson+'.png', false);
-        await save_json(res, 'timeline' + namePerson + '.json');
+        await save_screenshot(res_area[0], 'timeline-pic-'+namePerson+'.png', false);
+        await save_json(res, 'timeline-text-' + namePerson + '.json');
     }
     catch (e){
         console.log(e);
