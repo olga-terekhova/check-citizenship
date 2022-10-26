@@ -25,6 +25,13 @@ async function save_page(page, filename){
     
 }
 
+async function save_json(str, filename){
+    var s3 = new AWS.S3();
+    var key_name = PROJECT_PATH + 'output/' + filename;
+    const params = { Bucket: BUCKET_NAME, Key: key_name, Body: str };
+    await s3.putObject(params).promise();
+}
+
 async function checkPerson (credPerson) {
     var namePerson = credPerson.name;
     var loginPerson = credPerson.login;
@@ -102,7 +109,7 @@ async function checkPerson (credPerson) {
         
         let res_area = await page.$x("//section[@class='application-history-container']"); 
         await save_screenshot(res_area[0], 'timeline'+namePerson+'.png', false);
-        
+        await save_json(res, 'timeline' + namePerson + '.json');
     }
     catch (e){
         console.log(e);
@@ -147,4 +154,4 @@ async function checkPeople () {
 
 exports.handler = async (event) => {
     return await checkPeople();
-};
+}; 
