@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk')    
+const AWS = require('aws-sdk');
 const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 const BUCKET_NAME = 's3-925332';  // name of the AWS S3 bucket to store configs and results
@@ -42,7 +42,7 @@ async function checkPerson (credPerson) {
           ignoreHTTPSErrors: true,
         });
         const page = await browser.newPage();
-        await page.goto("https://cst-ssc.apps.cic.gc.ca/en/login");
+        await page.goto("https://cst-ssc.apps.cic.gc.ca/en/login", { waitUntil: 'networkidle2' });
         await save_screenshot(page, 'step1'+namePerson+'.png', true);
         await save_page(page, 'step1' + namePerson + '.html');
         
@@ -134,7 +134,7 @@ async function checkPeople () {
         response = {
             statusCode: 200,
             body: results,
-            }
+            };
         }
     } catch (err) {
         response = {
