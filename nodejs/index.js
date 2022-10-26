@@ -50,14 +50,14 @@ async function checkPerson (credPerson) {
         });
         const page = await browser.newPage();
         await page.goto("https://cst-ssc.apps.cic.gc.ca/en/login", { waitUntil: 'networkidle2' });
-        await save_screenshot(page, 'step1'+namePerson+'.png', true);
-        await save_page(page, 'step1' + namePerson + '.html');
+        await save_screenshot(page, 'log/step1'+namePerson+'.png', true);
+        await save_page(page, 'log/step1' + namePerson + '.html');
         
         
         const signInButton = await page.waitForXPath("//button[text()[contains(., 'Sign into your tracker account')]]");
         await signInButton.click( {waitUntil: 'domcontentloaded'});
-        await save_screenshot(page, 'step2'+ namePerson+'.png', true);
-        await save_page(page, 'step2' + namePerson + '.html');
+        await save_screenshot(page, 'log/step2'+ namePerson+'.png', true);
+        await save_page(page, 'log/step2' + namePerson + '.html');
         
         const uci = await page.waitForSelector('#uci');
         await uci.type(loginPerson);
@@ -67,8 +67,8 @@ async function checkPerson (credPerson) {
         await submitButton.click({waitUntil: 'domcontentloaded'});
         
         const lastUpdateDateEl = await page.waitForXPath("//dd[contains(@class,'date-text')]");
-        await save_screenshot(page, 'step3'+ namePerson+'.png', true);
-        await save_page(page, 'step3' + namePerson + '.html');
+        await save_screenshot(page, 'log/step3'+ namePerson+'.png', true);
+        await save_page(page, 'log/step3' + namePerson + '.html');
         
         let lastUpdateDateVal = await (await lastUpdateDateEl.getProperty('textContent')).jsonValue();
         const lastUpdateDate = lastUpdateDateVal.trim();
@@ -108,8 +108,8 @@ async function checkPerson (credPerson) {
         res = JSON.stringify(result_person);
         
         let res_area = await page.$x("//section[@class='application-history-container']"); 
-        await save_screenshot(res_area[0], 'timeline-pic-'+namePerson+'.png', false);
-        await save_json(res, 'timeline-text-' + namePerson + '.json');
+        await save_screenshot(res_area[0], 'timeline-pic/'+namePerson+'.png', false);
+        await save_json(res, 'timeline-text/' + namePerson + '.json');
     }
     catch (e){
         console.log(e);
