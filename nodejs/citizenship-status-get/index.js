@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
 const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
-const BUCKET_NAME = 's3-925332';  // name of the AWS S3 bucket to store configs and results
+const BUCKET_NAME = process.env.bucket_name;  // name of the AWS S3 bucket to store configs and results
 const PROJECT_PATH = 'projects/citizenship/'; // path in the S3 bucket to the project directory 
 
 async function save_screenshot(elem, filename, isPage){
