@@ -142,6 +142,12 @@ async function checkPeople () {
             statusCode: 200,
             body: results,
             };
+        const lambdaParams = {
+            FunctionName: 'citizenship-status-email',
+            InvocationType: 'Event',
+            };
+        var lambda = new AWS.Lambda();
+        const lambdaResult = await lambda.invoke(lambdaParams).promise();
         }
     } catch (err) {
         response = {
