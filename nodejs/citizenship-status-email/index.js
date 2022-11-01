@@ -37,6 +37,7 @@ exports.handler = async function (event) {
     },
     Source: emailAddress,
   };
-  return ses.sendEmail(params).promise();
+  let emailSent = ses.sendEmail(params).promise();
+  return "ok";
   
 };
