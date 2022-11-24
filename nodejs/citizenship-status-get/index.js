@@ -122,7 +122,7 @@ async function checkPerson (credPerson) {
     return res;
 }
 
-async function checkPeople () {
+async function checkPeople (event) {
     var s3 = new AWS.S3();
     let contentFile;
     let response='';
@@ -134,21 +134,53 @@ async function checkPeople () {
         let credFile = JSON.parse(contentFile);
         let credentials = credFile.credentials;
         let results = [];
+        let namelist = [];
         for (let cred in credentials){
             if (credentials[cred].check == 'TRUE') {
                 results.push(await checkPerson(credentials[cred]));
+                namelist.push(credentials[cred].name);
             }
+        } 
+        
         response = {
             statusCode: 200,
             body: results,
             };
-        const lambdaParams = {
-            FunctionName: 'citizenship-status-email',
-            InvocationType: 'Event',
-            };
-        var lambda = new AWS.Lambda();
-        const lambdaResult = await lambda.invoke(lambdaParams).promise();
+            
+        
+            
+        if ('output' in event) { 
+            console.log('output in event');
+            if (event['output'] == 'bot'){
+               console.log('output bot');
+               let payloadParams =  event['chat'] ;
+               payloadParams["credlist"] = namelist;
+
+               let lambdaParams = {
+                   FunctionName: 'citizenship-status-bot-send', 
+                   InvocationType: 'Event', 
+                   Payload: JSON.stringify(payloadParams),
+               };
+               console.log(lambdaParams);
+               let lambda = new AWS.Lambda();
+               //lambda.invoke(lambdaParams);
+               let lambdaResult = await lambda.invoke(lambdaParams).promise();
+    
+                
+            }
         }
+        else {
+           let lambdaParams = {
+               FunctionName: 'citizenship-status-email',
+               InvocationType: 'Event',
+               };
+           let lambda = new AWS.Lambda();
+           console.log('Not bot - stub for email');
+           const lambdaResult = await lambda.invoke(lambdaParams).promise();
+           
+           
+        }
+        
     } catch (err) {
         response = {
             statusCode: 500,
@@ -159,5 +191,5 @@ async function checkPeople () {
 }
 
 exports.handler = async (event) => {
-    return await checkPeople();
+    return await checkPeople(event);
 }; 
