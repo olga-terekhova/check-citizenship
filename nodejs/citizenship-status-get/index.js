@@ -49,15 +49,15 @@ async function checkPerson (credPerson) {
           ignoreHTTPSErrors: true,
         });
         const page = await browser.newPage();
-        await page.goto("https://cst-ssc.apps.cic.gc.ca/en/login", { waitUntil: 'networkidle2' });
+        await page.goto("https://tracker-suivi.apps.cic.gc.ca/en/login", { waitUntil: 'networkidle2' });
         await save_screenshot(page, 'log/step1'+namePerson+'.png', true);
         await save_page(page, 'log/step1' + namePerson + '.html');
         
         
-        const signInButton = await page.waitForXPath("//button[text()[contains(., 'Sign into your tracker account')]]");
-        await signInButton.click( {waitUntil: 'domcontentloaded'});
-        await save_screenshot(page, 'log/step2'+ namePerson+'.png', true);
-        await save_page(page, 'log/step2' + namePerson + '.html');
+        // const signInButton = await page.waitForXPath("//button[text()[contains(., 'Sign into your tracker account')]]");
+        // await signInButton.click( {waitUntil: 'domcontentloaded'});
+        // await save_screenshot(page, 'log/step2'+ namePerson+'.png', true);
+        // await save_page(page, 'log/step2' + namePerson + '.html');
         
         const uci = await page.waitForSelector('#uci');
         await uci.type(loginPerson);
