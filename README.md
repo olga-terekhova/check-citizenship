@@ -18,6 +18,7 @@ Automated checking for updates in Canadian citizenship application tracking (htt
 5. Attach python-requests layer to all Python functions.
 6. Create a nodejs Lambda function:
    - citizenship-status-get (code in nodejs/citizenship-status-get)
+7. Attach chromium and puppeteer-core layers to citizenship-status-get. 
 7. Set up IAM policies:
    - Lambda functions to have access to S3 bucket
    - Lambda functions to be able to invoke each other
