@@ -32,13 +32,16 @@ async function save_json(str, filename){
     await s3.putObject(params).promise();
 }
 
-async function checkPerson (credPerson) {
+async function checkPerson (event) {
+    var chat_id = event.chat.chat_id;
+    var credPerson = event.cred;
     var namePerson = credPerson.name;
     var loginPerson = credPerson.login;
     var passwordPerson = credPerson.password;
     
     var res;
     let browser;
+    let page;
 
     try {
         browser = await puppeteer.launch({
@@ -48,16 +51,35 @@ async function checkPerson (credPerson) {
           headless: chromium.headless,
           ignoreHTTPSErrors: true,
         });
-        const page = await browser.newPage();
+        page = await browser.newPage();
+        page.setViewport({width: 1500, height: 1080});
+        
+    }
+    catch (e){
+        console.log(e);
+        console.log("Error");
+        if ('output' in event) { 
+            if (event['output'] == 'bot'){
+               let payloadParams =  event ;
+               payloadParams["result"] = {"success": "no", "text" : "Error checking. Browser not created."};
+
+               let lambdaParams = {
+                   FunctionName: 'citizenship-status-bot-send', 
+                   InvocationType: 'Event', 
+                   Payload: JSON.stringify(payloadParams),
+               };
+               let lambda = new AWS.Lambda();
+               let lambdaResult = await lambda.invoke(lambdaParams).promise();
+            }
+        }
+        return "fail";
+    }
+   
+        
+    try{
         await page.goto("https://tracker-suivi.apps.cic.gc.ca/en/login", { waitUntil: 'networkidle2' });
-        await save_screenshot(page, 'log/step1'+namePerson+'.png', true);
-        await save_page(page, 'log/step1' + namePerson + '.html');
-        
-        
-        // const signInButton = await page.waitForXPath("//button[text()[contains(., 'Sign into your tracker account')]]");
-        // await signInButton.click( {waitUntil: 'domcontentloaded'});
-        // await save_screenshot(page, 'log/step2'+ namePerson+'.png', true);
-        // await save_page(page, 'log/step2' + namePerson + '.html');
+        await save_screenshot(page, 'log/'+ chat_id + '/step1'+loginPerson+'.png', true);
+        await save_page(page, 'log/'+ chat_id + '/step1' + loginPerson + '.html');
         
         const uci = await page.waitForSelector('#uci');
         await uci.type(loginPerson);
@@ -67,95 +89,25 @@ async function checkPerson (credPerson) {
         await submitButton.click({waitUntil: 'domcontentloaded'});
         
         const lastUpdateDateEl = await page.waitForXPath("//dd[contains(@class,'date-text')]");
-        await save_screenshot(page, 'log/step3'+ namePerson+'.png', true);
-        await save_page(page, 'log/step3' + namePerson + '.html');
+        await save_screenshot(page, 'log/'+ chat_id + '/step3'+ loginPerson+'.png', true);
+        await save_page(page, 'log/'+ chat_id + '/step3' + loginPerson + '.html');
         
         let lastUpdateDateVal = await (await lastUpdateDateEl.getProperty('textContent')).jsonValue();
         const lastUpdateDate = lastUpdateDateVal.trim();
         
-        var activities = await page.$x("//li[@class='activity']");
-        let result_activities = [];
-         for (let acti in activities){
-            let acti_element = activities[acti];
-            const acti_date_el = await page.evaluate( (el) =>  {
-                let elements = el.getElementsByClassName('date');
-                let result = '';
-                if(elements.length>0) {
-                    result = elements[0].textContent.trim();
-                }
-                return result;
-            }, acti_element);
-            const acti_status_el = await page.evaluate( (el) =>  {
-                let elements = el.getElementsByClassName('activity-title');
-                let result = '';
-                if(elements.length>0) {
-                    result = elements[0].textContent.trim();
-                }
-                return result;
-            }, acti_element);
-            const acti_text_el = await page.evaluate( (el) =>  {
-                let elements = el.getElementsByClassName('activity-text');
-                let result = '';
-                if(elements.length>0) {
-                    result = elements[0].textContent.trim();
-                }
-                return result;
-            }, acti_element);
-            let acti_object = {activity_date: acti_date_el, activity_status: acti_status_el, activity_text: acti_text_el};
-            result_activities.push(acti_object);
-        }
-        let result_person = {name: namePerson, status: "ok",  lastUpdateDate: lastUpdateDate, timeline: result_activities};
+        let result_person = {name: namePerson, login:loginPerson, status: "ok",  lastUpdateDate: lastUpdateDate};
         res = JSON.stringify(result_person);
         
-        let res_area = await page.$x("//section[@class='application-history-container']"); 
-        await save_screenshot(res_area[0], 'timeline-pic/'+namePerson+'.png', false);
-        await save_json(res, 'timeline-text/' + namePerson + '.json');
-    }
-    catch (e){
-        console.log(e);
-        console.log("Error");
-        res = {name: namePerson, status: "error"};
-    }
-    finally {
-        await browser.close();
-    }
-    return res;
-}
-
-async function checkPeople (event) {
-    var s3 = new AWS.S3();
-    let contentFile;
-    let response='';
-    try {
-        const file = await s3
-         .getObject({ Bucket: BUCKET_NAME, Key: PROJECT_PATH + 'config/cred.config' })
-         .promise();
-        contentFile = file.Body.toString();
-        let credFile = JSON.parse(contentFile);
-        let credentials = credFile.credentials;
-        let results = [];
-        let namelist = [];
-        for (let cred in credentials){
-            if (credentials[cred].check == 'TRUE') {
-                results.push(await checkPerson(credentials[cred]));
-                namelist.push(credentials[cred].name);
-            }
-        } 
+        await save_screenshot(page, 'timeline-pic/'+ chat_id + '/' + loginPerson +'.png', true);
+        let screenshot_path = PROJECT_PATH + 'output/' + 'timeline-pic/'+ chat_id + '/' + loginPerson +'.png';
+        await save_json(res, 'timeline-text/' + chat_id + '/' + loginPerson + '.json');
         
-        response = {
-            statusCode: 200,
-            body: results,
-            };
-            
         
-            
+        // SEND PAGE SCREENSHOT TO BOT
         if ('output' in event) { 
-            console.log('output in event');
             if (event['output'] == 'bot'){
-               console.log('output bot');
-               let payloadParams =  event['chat'] ;
-               payloadParams["credlist"] = namelist;
-
+               let payloadParams =  event ;
+               payloadParams["result"] = {"success": "yes", "text" :  result_person['lastUpdateDate'] , "image": { "key": screenshot_path, "bucket":BUCKET_NAME }};
                let lambdaParams = {
                    FunctionName: 'citizenship-status-bot-send', 
                    InvocationType: 'Event', 
@@ -163,33 +115,42 @@ async function checkPeople (event) {
                };
                console.log(lambdaParams);
                let lambda = new AWS.Lambda();
-               //lambda.invoke(lambdaParams);
+               let lambdaResult = await lambda.invoke(lambdaParams).promise();
+            }
+        }
+        
+    }
+    catch (e){
+        console.log(e);
+        console.log("Error");
+        res = {name: namePerson, login: loginPerson, status: "error"};
+        await save_screenshot(page, 'log/'+ chat_id + '/error'+ loginPerson+'.png', true);
+        let screenshot_path = PROJECT_PATH + 'output/' + 'log/'+ chat_id + '/error'+ loginPerson+'.png';
+        
+        // SEND INFO ABOUT ERROR TO BOT
+        if ('output' in event) { 
+            if (event['output'] == 'bot'){
+               let payloadParams =  event ;
+               payloadParams["result"] = {"success": "no", "text" : "Error checking. Make sure credentials are valid and try checking manually in a browser.", "image": { "key": screenshot_path, "bucket":BUCKET_NAME }};
+               let lambdaParams = {
+                   FunctionName: 'citizenship-status-bot-send', 
+                   InvocationType: 'Event', 
+                   Payload: JSON.stringify(payloadParams),
+               };
+               let lambda = new AWS.Lambda();
                let lambdaResult = await lambda.invoke(lambdaParams).promise();
     
                 
             }
         }
-        else {
-           let lambdaParams = {
-               FunctionName: 'citizenship-status-email',
-               InvocationType: 'Event',
-               };
-           let lambda = new AWS.Lambda();
-           console.log('Not bot - stub for email');
-           const lambdaResult = await lambda.invoke(lambdaParams).promise();
-           
-           
-        }
-        
-    } catch (err) {
-        response = {
-            statusCode: 500,
-            body: err,
-        };
     }
-    return response;
+    finally {
+        await browser.close();
+    }
+    return res;
 }
 
+
 exports.handler = async (event) => {
-    return await checkPeople(event);
+    return await checkPerson(event);
 }; 
