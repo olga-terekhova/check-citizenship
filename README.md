@@ -7,16 +7,20 @@ Automated checking for updates in Canadian citizenship application tracking (htt
 ## Installation on AWS
 
 1. Create an S3 bucket.
-2. Upload files to S3 bucket:
-   - nodejs/layers/chromium.zip (source: https://github.com/Sparticuz/chromium/actions (version 107))
-   - nodejs/layers/puppeteer-core.zip (source: installed puppeteer-core locally, npm install --save puppeteer-core@18.1.0)
-   - py-code/layers/python-requests.zip (source: installed requests locally)
-3. Create 3 Lambda function layers based on the files.
-4. Create 3 Python Lambda functions:
+2. Create a folder "lib".
+3. Upload files into "lib" on the S3 bucket:
+   - [nodejs/layers/chromium.zip](nodejs/layers/chromium.zip) (source: https://github.com/Sparticuz/chromium/actions (version 107))
+   - [nodejs/layers/puppeteer-core.zip](nodejs/layers/puppeteer-core.zip) (source: installed puppeteer-core locally, npm install --save puppeteer-core@18.1.0)
+   - [py-code/layers/python-requests.zip](py-code/layers/python-requests.zip) (source: installed requests locally)
+4. Create 3 Lambda function layers based on the files:
+- chromium-aws-layer from chromium.zip
+- puppeteer-core-aws-layer from puppeteer-core.zip
+- python-requests from python-requests.zip
+6. Create 3 Python Lambda functions:
    - citizenship-status-bot (code in py-code/citizenship-status-bot)
    - citizenship-status-bot-send (code in py-code/citizenship-status-bot-send)
    - citizenship-status-subscribed (code in py-code/citizenship-status-subscribed)
-5. Put the S3 bucket name as an environment variable for functions. 
+7. Put the S3 bucket name as an environment variable for functions. 
 5. Attach python-requests layer to all Python functions.
 6. Create a nodejs Lambda function:
    - citizenship-status-get (code in nodejs/citizenship-status-get)
