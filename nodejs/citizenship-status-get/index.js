@@ -152,5 +152,6 @@ async function checkPerson (event) {
 
 
 exports.handler = async (event) => {
+    
     return await checkPerson(event);
 }; 
