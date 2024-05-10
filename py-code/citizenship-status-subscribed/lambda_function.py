@@ -11,9 +11,6 @@ BUCKET_NAME = os.environ['BUCKET_NAME']
 PROJECT_PATH = os.environ['PROJECT_PATH']
 
 
-
-
-
 def subscribed_file_to_list():
     
     # open the file
@@ -47,12 +44,7 @@ def subscribed_file_to_list():
     
     # from json to dict
     sub_dict = json.loads(sub_contents)
-    print(sub_dict)
-    
-    # list = dict.to list
-    #sub_list = list(sub_dict['listSubscribedChatIDs'](values()))
     sub_list = [x["id"] for x in sub_dict['listSubscribedChatIDs']] 
-    #list(sub_dict['listSubscribedChatIDs'](values()))
     print(sub_list)
     return sub_list
 
@@ -105,7 +97,6 @@ def subscribed_run():
 
 
 def lambda_handler(event, context):
-    # TODO implement
     subscribed_run()
     return {
         'statusCode': 200,
