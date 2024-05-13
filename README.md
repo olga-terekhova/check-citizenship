@@ -1,8 +1,10 @@
 # check-citizenship
 Automated checking for updates in Canadian citizenship application tracking (https://tracker-suivi.apps.cic.gc.ca/en/login).
 
-## Overview
-
+## Overview  
+<p align="center">
+  <img src="docs/check-tracker-header.png" width="506">
+</p>  
 People who submit their application to get a Canadian citizenship have an option to see the status of their application using an official tracker.  
 In theory, using this tracker is not necessary: major changes like an invitation to take a test or a scheduled ceremony date should be communicated by email.  
 But a lot of applicants prefer to check the tracker frequently:  
