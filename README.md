@@ -4,15 +4,17 @@ Automated checking for updates in Canadian citizenship application tracking (htt
 ## Overview  
 <p align="center">
   <img src="docs/check-tracker-header.png" width="506">
-</p>  
+</p>   
+  
 People who submit their application to get a Canadian citizenship have an option to see the status of their application using an official tracker.  
 In theory, using this tracker is not necessary: major changes like an invitation to take a test or a scheduled ceremony date should be communicated by email.  
-But a lot of applicants prefer to check the tracker frequently:  
-- there is a fear that the email systems, either on IRCC's or the applicant's side, can malfunction
-- there are rumours that the tracker may show the change before an email confirms it, which might give an applicant more time to study for the test or to contact IRCC to change the date of the ceremony if needed
+However, a lot of applicants prefer to **check the tracker frequently**:  
+- There is a fear that the email systems, either on IRCC's or the applicant's side, can malfunction. Applicants do not want to risk missing important changes.  
+- There are rumours that the tracker may show the change before an email confirms it. Learning about the update earlier might give an applicant more time to study for the test or to contact IRCC to change the date of the ceremony if needed.
 
-This automated solution can log on the IRCC tracker, grab a screenshot, and send it to the user.  
-It can satisfy the itch to check and bring some peace of mind to the applicant.   
+This **automated solution** can log on the IRCC tracker, grab a screenshot, and send it to the user.  
+The solution can perform the check **on demand** or **on schedule**. It's easily accessible on a **mobile phone**.  
+It can satisfy the itch to check and bring some **peace of mind** to the applicant.   
 
 
 ## User interface
